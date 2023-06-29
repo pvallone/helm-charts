@@ -1,7 +1,7 @@
 global:
   # To help compatibility with other charts which use global.imagePullSecrets.
   # Allow either an array of {name: pullSecret} maps (k8s-style), or an array of strings (more common helm-style).
-  # Can be tempalted.
+  # Can be templated.
   # global:
   #   imagePullSecrets:
   #   - name: pullSecret1
@@ -12,6 +12,7 @@ global:
   #   - pullSecret1
   #   - pullSecret2
   imagePullSecrets: []
+  imageRegistry: ""
 
 rbac:
   create: true
@@ -84,10 +85,11 @@ livenessProbe:
 # schedulerName: "default-scheduler"
 
 image:
-  repository: docker.io/grafana/grafana
+  registry: docker.io
+  repository: grafana/grafana
   # Overrides the Grafana image tag whose default is the chart appVersion
-  tag: ""
-  sha: ""
+  tag: "latest"
+  sha: "1caf984a3f2e07ea4f5ffd25c16fad0ed0ddac043467e8b9ddaf4cbbc6299ec4"
   pullPolicy: IfNotPresent
 
   ## Optionally specify an array of imagePullSecrets.
@@ -98,9 +100,14 @@ image:
   pullSecrets: []
   #   - myRegistrKeySecretName
 
+# TODO: issue here
 testFramework:
   enabled: true
-  image: docker.io/bats/bats
+  # TODO: need a dedicated function for this one. if image.tag is nil, just use testFramework.image and testFramework.tag
+  # else, switch to testFramework.image.registry, testFramework.image.repository, testFramework.image.tag
+  # this one's actually just tough... actually, the readme says "image" is the repository, so we can just have the registry out of band here. we chillin
+  registry: docker.io
+  image: bats/bats
   tag: "v1.4.1"
   imagePullPolicy: IfNotPresent
   securityContext: {}
@@ -144,7 +151,8 @@ extraLabels: {}
 # priorityClassName:
 
 downloadDashboardsImage:
-  repository: docker.io/curlimages/curl
+  registry: docker.io
+  repository: curlimages/curl
   tag: 7.85.0
   sha: ""
   pullPolicy: IfNotPresent
@@ -359,7 +367,8 @@ initChownData:
   ## initChownData container image
   ##
   image:
-    repository: docker.io/library/busybox
+    registry: docker.io
+    repository: library/busybox
     tag: "1.31.1"
     sha: ""
     pullPolicy: IfNotPresent
@@ -789,7 +798,8 @@ smtp:
 ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
 sidecar:
   image:
-    repository: quay.io/kiwigrid/k8s-sidecar
+    registry: quay.io
+    repository: kiwigrid/k8s-sidecar
     tag: 1.24.3
     sha: ""
   imagePullPolicy: IfNotPresent
@@ -815,7 +825,7 @@ sidecar:
   # Log level default for all sidecars. Can be one of: DEBUG, INFO, WARN, ERROR, CRITICAL. Defaults to INFO
   # logLevel: INFO
   alerts:
-    enabled: false
+    enabled: true
     # Additional environment variables for the alerts sidecar
     env: {}
     # Do not reprocess already processed unchanged resources on k8s API reconnect.
@@ -855,7 +865,7 @@ sidecar:
     # Sets the size limit of the alert sidecar emptyDir volume
     sizeLimit: {}
   dashboards:
-    enabled: false
+    enabled: true
     # Additional environment variables for the dashboards sidecar
     env: {}
     # Do not reprocess already processed unchanged resources on k8s API reconnect.
@@ -918,7 +928,7 @@ sidecar:
     # Sets the size limit of the dashboard sidecar emptyDir volume
     sizeLimit: {}
   datasources:
-    enabled: false
+    enabled: true
     # Additional environment variables for the datasourcessidecar
     env: {}
     # Do not reprocess already processed unchanged resources on k8s API reconnect.
@@ -958,7 +968,7 @@ sidecar:
     # Sets the size limit of the datasource sidecar emptyDir volume
     sizeLimit: {}
   plugins:
-    enabled: false
+    enabled: true
     # Additional environment variables for the plugins sidecar
     env: {}
     # Do not reprocess already processed unchanged resources on k8s API reconnect.
@@ -998,7 +1008,7 @@ sidecar:
     # Sets the size limit of the plugin sidecar emptyDir volume
     sizeLimit: {}
   notifiers:
-    enabled: false
+    enabled: true
     # Additional environment variables for the notifierssidecar
     env: {}
     # Do not reprocess already processed unchanged resources on k8s API reconnect.
@@ -1061,7 +1071,8 @@ imageRenderer:
     behavior: {}
   image:
     # image-renderer Image repository
-    repository: docker.io/grafana/grafana-image-renderer
+    registry: docker.io
+    repository: grafana/grafana-image-renderer
     # image-renderer Image tag
     tag: latest
     # image-renderer Image sha (optional)

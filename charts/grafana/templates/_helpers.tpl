@@ -187,7 +187,11 @@ Return if ingress supports pathType.
 {{- end }}
 
 {{/*
-Formats imagePullSecrets. Input is (dict "root" . "imagePullSecrets" .{specific imagePullSecrets})
+Formats imagePullSecrets.
+
+Parameters:
+   .root
+   .imagePullSecrets (can be an array or map)
 */}}
 {{- define "grafana.imagePullSecrets" -}}
 {{- $root := .root }}
@@ -199,3 +203,83 @@ Formats imagePullSecrets. Input is (dict "root" . "imagePullSecrets" .{specific 
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Return the fully formed container image name, taking the global image registry into account if it's been set.
+
+Parameters:
+   .root
+   .image with expected values:
+      registry
+      repository
+      tag (optional)
+      sha (optional)
+   .defaultTag
+*/}}
+{{- define "grafana.image" -}}
+{{- $registryName := "" -}}
+{{- if .root.Values.global.imageRegistry }}
+{{- $registryName = .root.Values.global.imageRegistry | toString -}}
+{{- else if .image.registry }}
+{{- $registryName = .image.registry | toString -}}
+{{- end }}
+{{- $repositoryName := .image.repository | toString -}}
+{{- $tag := .image.tag | default .defaultTag | toString -}}
+{{- if .image.sha }}
+{{- $tag = printf "%s@sha256:%s" $tag .image.sha -}}
+{{- end }}
+{{- if $registryName }}
+{{- printf "%s/%s:%s" $registryName $repositoryName $tag | quote -}}
+{{- else -}}
+{{- printf "%s:%s" $repositoryName $tag | quote -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the fully formed container testFramework image name, taking the global image registry into account if it's been set.
+Note: The testFramework's image config is defined inconsistently, in that it doesn't have an "image" dictionary. Instead,
+all of the image configuration is defined under the "testFramework" node, and "testFramework.image" only refers to the image repository.
+
+Parameters:
+   .root
+   .testFramework with expected values:
+      registry
+      image
+      tag (optional)
+*/}}
+{{- define "grafana.testFramework.image" -}}
+{{- $registryName := "" -}}
+{{- if .root.Values.global.imageRegistry }}
+{{- $registryName = .root.Values.global.imageRegistry | toString -}}
+{{- else if .testFramework.registry }}
+{{- $registryName = .testFramework.registry | toString -}}
+{{- end }}
+{{- $repositoryName := .testFramework.image -}}
+{{- $tag := .testFramework.tag -}}
+{{- if .sha }}
+{{- $tag = printf "%s@sha256:%s" $tag .sha -}}
+{{- end }}
+{{- if $registryName }}
+{{- printf "%s/%s:%s" $registryName $repositoryName $tag | quote -}}
+{{- else -}}
+{{- printf "%s:%s" $repositoryName $tag | quote -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the fully formed extra container image name, taking the global image registry into account if it's been set. Input is (dict "root" . "registry" {registry} "repository" {repository} "tag" {tag})
+The registry, repository, and tag are defined in a flat structure so that this function can be called directly from the values file.
+For example: image: {{ include "grafana.extra.containers.image" (dict "root" . "registry" "sample-registry.io" "repository" "grafana-auth-proxy" "tag" "1.1") }}
+
+Parameters:
+   .root
+   .registry
+   .repository
+   .tag
+*/}}
+{{- define "grafana.extra.containers.image" -}}
+{{- $registryName := .root.Values.global.imageRegistry | default .registry | toString -}}
+{{- $repositoryName := .repository -}}
+{{- $tag := .tag | toString -}}
+{{- printf "%s/%s:%s" $registryName $repositoryName $tag | quote -}}
+{{- end -}}

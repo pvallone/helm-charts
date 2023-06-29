@@ -22,11 +22,7 @@ initContainers:
 {{- end }}
 {{- if ( and .Values.persistence.enabled .Values.initChownData.enabled ) }}
   - name: init-chown-data
-    {{- if .Values.initChownData.image.sha }}
-    image: "{{ .Values.initChownData.image.repository }}:{{ .Values.initChownData.image.tag }}@sha256:{{ .Values.initChownData.image.sha }}"
-    {{- else }}
-    image: "{{ .Values.initChownData.image.repository }}:{{ .Values.initChownData.image.tag }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.initChownData.image) }}
     imagePullPolicy: {{ .Values.initChownData.image.pullPolicy }}
     {{- with .Values.initChownData.securityContext }}
     securityContext:
@@ -50,11 +46,7 @@ initContainers:
 {{- end }}
 {{- if .Values.dashboards }}
   - name: download-dashboards
-    {{- if .Values.downloadDashboardsImage.sha }}
-    image: "{{ .Values.downloadDashboardsImage.repository }}:{{ .Values.downloadDashboardsImage.tag }}@sha256:{{ .Values.downloadDashboardsImage.sha }}"
-    {{- else }}
-    image: "{{ .Values.downloadDashboardsImage.repository }}:{{ .Values.downloadDashboardsImage.tag }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.downloadDashboards.image) }}
     imagePullPolicy: {{ .Values.downloadDashboardsImage.pullPolicy }}
     command: ["/bin/sh"]
     args: [ "-c", "mkdir -p /var/lib/grafana/dashboards/default && /bin/sh -x /etc/grafana/download_dashboards.sh" ]
@@ -98,11 +90,7 @@ initContainers:
 {{- end }}
 {{- if and .Values.sidecar.datasources.enabled .Values.sidecar.datasources.initDatasources }}
   - name: {{ include "grafana.name" . }}-init-sc-datasources
-    {{- if .Values.sidecar.image.sha }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}@sha256:{{ .Values.sidecar.image.sha }}"
-    {{- else }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.sidecar.image) }}
     imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
     env:
       {{- range $key, $value := .Values.sidecar.datasources.env }}
@@ -155,11 +143,7 @@ initContainers:
 {{- end }}
 {{- if and .Values.sidecar.notifiers.enabled .Values.sidecar.notifiers.initNotifiers }}
   - name: {{ include "grafana.name" . }}-init-sc-notifiers
-    {{- if .Values.sidecar.image.sha }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}@sha256:{{ .Values.sidecar.image.sha }}"
-    {{- else }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.sidecar.image) }}
     imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
     env:
       {{- range $key, $value := .Values.sidecar.notifiers.env }}
@@ -231,11 +215,7 @@ enableServiceLinks: {{ .Values.enableServiceLinks }}
 containers:
 {{- if .Values.sidecar.alerts.enabled }}
   - name: {{ include "grafana.name" . }}-sc-alerts
-    {{- if .Values.sidecar.image.sha }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}@sha256:{{ .Values.sidecar.image.sha }}"
-    {{- else }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.sidecar.image) }}
     imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
     env:
       {{- range $key, $value := .Values.sidecar.alerts.env }}
@@ -337,11 +317,7 @@ containers:
 {{- end}}
 {{- if .Values.sidecar.dashboards.enabled }}
   - name: {{ include "grafana.name" . }}-sc-dashboard
-    {{- if .Values.sidecar.image.sha }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}@sha256:{{ .Values.sidecar.image.sha }}"
-    {{- else }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.sidecar.image) }}
     imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
     env:
       {{- range $key, $value := .Values.sidecar.dashboards.env }}
@@ -447,11 +423,7 @@ containers:
 {{- end}}
 {{- if .Values.sidecar.datasources.enabled }}
   - name: {{ include "grafana.name" . }}-sc-datasources
-    {{- if .Values.sidecar.image.sha }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}@sha256:{{ .Values.sidecar.image.sha }}"
-    {{- else }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.sidecar.image) }}
     imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
     env:
       {{- range $key, $value := .Values.sidecar.datasources.env }}
@@ -550,11 +522,7 @@ containers:
 {{- end}}
 {{- if .Values.sidecar.notifiers.enabled }}
   - name: {{ include "grafana.name" . }}-sc-notifiers
-    {{- if .Values.sidecar.image.sha }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}@sha256:{{ .Values.sidecar.image.sha }}"
-    {{- else }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.sidecar.image) }}
     imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
     env:
       {{- range $key, $value := .Values.sidecar.notifiers.env }}
@@ -653,11 +621,7 @@ containers:
 {{- end}}
 {{- if .Values.sidecar.plugins.enabled }}
   - name: {{ include "grafana.name" . }}-sc-plugins
-    {{- if .Values.sidecar.image.sha }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}@sha256:{{ .Values.sidecar.image.sha }}"
-    {{- else }}
-    image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.sidecar.image) }}
     imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
     env:
       {{- range $key, $value := .Values.sidecar.plugins.env }}
@@ -755,11 +719,7 @@ containers:
         mountPath: "/etc/grafana/provisioning/plugins"
 {{- end}}
   - name: {{ .Chart.Name }}
-    {{- if .Values.image.sha }}
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}@sha256:{{ .Values.image.sha }}"
-    {{- else }}
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-    {{- end }}
+    image: {{ include "grafana.image" (dict "root" . "image" .Values.image "defaultTag" .Chart.AppVersion) }}
     imagePullPolicy: {{ .Values.image.pullPolicy }}
     {{- if .Values.command }}
     command:

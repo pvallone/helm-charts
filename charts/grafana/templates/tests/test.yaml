@@ -34,7 +34,7 @@ spec:
   {{- end }}
   containers:
     - name: {{ .Release.Name }}-test
-      image: "{{ .Values.testFramework.image}}:{{ .Values.testFramework.tag }}"
+      image: {{ include "grafana.testFramework.image" (dict "root" . "testFramework" .Values.testFramework) }}
       imagePullPolicy: "{{ .Values.testFramework.imagePullPolicy}}"
       command: ["/opt/bats/bin/bats", "-t", "/tests/run.sh"]
       volumeMounts:
